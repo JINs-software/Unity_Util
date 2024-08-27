@@ -12,7 +12,7 @@ public class SceneManagerEx
     // Defines.cs에서 enum으로 관리되는 씬을 통해 새로운 씬 로드
 	public void LoadScene(Define.Scene type)
     {
-        Managers.Clear();
+        Manager_Sample.Clear();
         SceneManager.LoadScene(GetSceneName(type));
     }
 

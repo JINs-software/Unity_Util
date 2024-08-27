@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 
-public class Managers : MonoBehaviour
+public class Manager_Sample : MonoBehaviour
 {
     // Managers는 프로젝트의 다른 cs에서 쉽게 참조하면서 동시에 하나의 객체만이 유지되도록 한다.
-    static Managers s_instance; // 유일성이 보장
-    static Managers Instance { get { Init(); return s_instance; } } // 프로퍼티 활용, 유일한 매니저를 생성하고, 반환하도록 한다.
+    static Manager_Sample s_instance; // 유일성이 보장
+    static Manager_Sample Instance { get { Init(); return s_instance; } } // 프로퍼티 활용, 유일한 매니저를 생성하고, 반환하도록 한다.
 
     // 싱글톤 Managers 객체가 관리하는 여러 매니저 클래스들. 
     // 이 매니저들은 MonoBehaviour를 상속받은 클래스의 객체들이 아니다. 
@@ -40,13 +40,13 @@ public class Managers : MonoBehaviour
             if (go == null)
             {
                 go = new GameObject { name = "@Managers" };
-                go.AddComponent<Managers>();
+                go.AddComponent<Manager_Sample>();
             }
 
             // 씬의 이동이 있더라도 'DontDestroyOnLoad'를 통해 게임 오브젝트가 파괴되지 않도록 할 수 있다.
             // 즉, Managers 싱글턴 객체는 모든 씬에서 유지될 수 있다. 
             DontDestroyOnLoad(go);
-            s_instance = go.GetComponent<Managers>();
+            s_instance = go.GetComponent<Manager_Sample>();
         }		
 	}
 
