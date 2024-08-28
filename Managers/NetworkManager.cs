@@ -199,6 +199,12 @@ public class NetworkManager
 
     public bool Connected { get { return m_TcpClient.Connected; } }
 
+    public bool IsValidServerIpAddress(string ipAddress)
+    {
+        IPAddress ip;
+        return IPAddress.TryParse(ipAddress, out ip);
+    }
+
     public bool Connect(string serverIP = "127.0.0.1", int port = 7777)
     {
         if (!Connected)
@@ -609,5 +615,17 @@ public class NetworkManager
         }
 
         return str;
+    }
+
+    // ------------------------
+    public enPacketType GetMsgTypeInBytes(byte[] payloads)
+    {
+        if (payloads == null)
+            throw new ArgumentNullException(nameof(payloads));
+        if (sizeof(ushort) > payloads.Length)
+            throw new ArgumentOutOfRangeException(nameof(payloads));
+
+        ushort usPacketType = BitConverter.ToUInt16(payloads, 0);
+        return (enPacketType)usPacketType;
     }
 }
