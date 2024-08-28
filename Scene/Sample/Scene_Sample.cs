@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestScene : BaseScene
+public class Scene_Sample : BaseScene
 {
     protected override void Init()
     {

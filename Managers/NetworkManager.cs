@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
+using Unity.VisualScripting.ReorderableList.Element_Adder_Menu;
 
 static public class JNET_PROTOCOL
 {
@@ -271,6 +272,30 @@ public class NetworkManager
         return true;
     }
 
+    public bool ReceivePacketBytes(out byte[] payloadBytes, bool decoding = true)
+    {
+        payloadBytes = default(byte[]); 
+
+        JNET_PROTOCOL.MSG_HDR hdr;
+        Peek<JNET_PROTOCOL.MSG_HDR>(out hdr);
+        if (Marshal.SizeOf<JNET_PROTOCOL.MSG_HDR>() + hdr.MsgLen > ReceivedDataSize())
+        {
+            return false;
+        }
+
+        ReceiveData<JNET_PROTOCOL.MSG_HDR>(out hdr);
+        payloadBytes = ReceiveBytes(hdr.MsgLen);
+        if (decoding)
+        {
+            if (!JNET_PROTOCOL.Decode(JNET_PROTOCOL.JNET_PROTO_SYMM_KEY, hdr.RandomKey, hdr.MsgLen, hdr.CheckSum, payloadBytes))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public bool ReceivePacket<T>(out T payload, bool decoding = true)
     {
         payload = default(T);
@@ -388,9 +413,38 @@ public class NetworkManager
         return null;
     }
 
-    public void SendPacket<T>(T packet, bool encoding = true)
+    public void SendPacketBytes(byte[] payloadBytes, bool encoding = true)
     {
-        byte[] bytes = MessageToBytes(packet);
+        JNET_PROTOCOL.MSG_HDR hdr = new JNET_PROTOCOL.MSG_HDR();
+        hdr.Code = JNET_PROTOCOL.JNET_PROTO_CODE;
+        hdr.MsgLen = (UInt16)payloadBytes.Length;
+        hdr.RandomKey = JNET_PROTOCOL.GetRandomKey();
+
+        if (encoding)
+        {
+            JNET_PROTOCOL.Encode(JNET_PROTOCOL.JNET_PROTO_SYMM_KEY, hdr.RandomKey, hdr.MsgLen, out hdr.CheckSum, payloadBytes);
+        }
+
+        byte[] hdrAndPayload = new byte[Marshal.SizeOf<JNET_PROTOCOL.MSG_HDR>() + payloadBytes.Length];
+
+        IntPtr ptr = Marshal.AllocHGlobal(Marshal.SizeOf<JNET_PROTOCOL.MSG_HDR>());
+        try
+        {
+            Marshal.StructureToPtr(hdr, ptr, false);
+            Marshal.Copy(ptr, hdrAndPayload, 0, Marshal.SizeOf<JNET_PROTOCOL.MSG_HDR>());
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(ptr);
+        }
+        Buffer.BlockCopy(payloadBytes, 0, hdrAndPayload, Marshal.SizeOf<JNET_PROTOCOL.MSG_HDR>(), payloadBytes.Length);
+
+        SendBytes(hdrAndPayload);
+    }
+
+    public void SendPacket<T>(T payload, bool encoding = true)
+    {
+        byte[] bytes = MessageToBytes(payload);
 
         JNET_PROTOCOL.MSG_HDR hdr = new JNET_PROTOCOL.MSG_HDR();
         hdr.Code = JNET_PROTOCOL.JNET_PROTO_CODE;

@@ -1,8 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SceneManagerEx
 {
+    public Action LoadSceneHandler;
+
     public BaseScene CurrentScene {
         // BaseScene 컴포넌트를 갖는 객체를 반환한다.
         // (BaseScene 파생 컴포넌트도 포함)
@@ -12,7 +15,9 @@ public class SceneManagerEx
     // Defines.cs에서 enum으로 관리되는 씬을 통해 새로운 씬 로드
 	public void LoadScene(Define.Scene type)
     {
-        Manager_Sample.Clear();
+        //Manager_Sample.Clear();
+        // => 씬 로드 이벤트 핸들러에 처리 함수를 외부에서 부착하고, 이를 호출하는 방식으로 변경
+        LoadSceneHandler.Invoke();
         SceneManager.LoadScene(GetSceneName(type));
     }
 
