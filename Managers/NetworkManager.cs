@@ -179,7 +179,7 @@ public class NetworkManager
     private TcpClient m_TcpClient = null;
     private NetworkStream m_Stream = null;
 
-    private NetBuffer m_RecvBuffer = new NetBuffer(DEFAULT_RECV_BUFF_SIZE);
+    private NetBuffer m_RecvBuffer = new NetBuffer(JNET_PROTOCOL.RECV_BUFFER_LENGTH);
 
     private System.Random m_RandKeyMaker = new System.Random();
 
