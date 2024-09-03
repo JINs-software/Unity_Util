@@ -2,10 +2,13 @@
 {
     public enum Scene
     {
-        Unknown,
-        Login,      // sample
-        Lobby,      // sample
-        Game,       // sample
+        HubScene,
+        //LoadingScene,
+        LoadScene,
+        SelectField,
+        BattleField,
+
+        Unknown,    // sample
     }
 
     public enum UIEvent

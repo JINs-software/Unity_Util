@@ -5,8 +5,6 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Text;
-using Unity.VisualScripting.ReorderableList.Element_Adder_Menu;
 
 static public class JNET_PROTOCOL
 {
@@ -177,10 +175,11 @@ public class NetBuffer
 
 public class NetworkManager
 {
+    const int DEFAULT_RECV_BUFF_SIZE = 10000;
     private TcpClient m_TcpClient = null;
     private NetworkStream m_Stream = null;
 
-    private NetBuffer m_RecvBuffer = new NetBuffer(0);
+    private NetBuffer m_RecvBuffer = new NetBuffer(DEFAULT_RECV_BUFF_SIZE);
 
     private System.Random m_RandKeyMaker = new System.Random();
 
@@ -283,7 +282,17 @@ public class NetworkManager
         payloadBytes = default(byte[]); 
 
         JNET_PROTOCOL.MSG_HDR hdr;
-        Peek<JNET_PROTOCOL.MSG_HDR>(out hdr);
+        if(!Peek<JNET_PROTOCOL.MSG_HDR>(out hdr))
+        {
+            return false;
+        }
+
+        if(hdr.Code != RPC.ValidCode)
+        {
+            UnityEngine.Debug.Log("hdr.Code != RPC.ValidCode");
+            Debugger.Break();
+        }
+
         if (Marshal.SizeOf<JNET_PROTOCOL.MSG_HDR>() + hdr.MsgLen > ReceivedDataSize())
         {
             return false;

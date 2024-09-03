@@ -17,7 +17,10 @@ public class SceneManagerEx
     {
         //Manager_Sample.Clear();
         // => 씬 로드 이벤트 핸들러에 처리 함수를 외부에서 부착하고, 이를 호출하는 방식으로 변경
-        LoadSceneHandler.Invoke();
+        if(LoadSceneHandler != null)
+        {
+            LoadSceneHandler.Invoke();
+        }
         SceneManager.LoadScene(GetSceneName(type));
     }
 
